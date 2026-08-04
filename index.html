@@ -1,0 +1,282 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>PPE · TDABC · KPI · BSC — Implementation Case Study | Muhamad Nishad</title>
+<style>
+  :root{
+    --navy:#0a1628; --navy2:#0f2136; --teal:#0d3b3e;
+    --gold:#d4af6a; --gold2:#f0d999; --text:#e8ecf1; --muted:#93a1b3;
+    --line:rgba(212,175,106,0.18);
+  }
+  *{box-sizing:border-box;}
+  body{
+    margin:0; background:linear-gradient(180deg,var(--navy) 0%,var(--navy2) 100%);
+    color:var(--text); font-family:'Georgia','Times New Roman',serif; line-height:1.7;
+  }
+  .layout{display:flex;min-height:100vh;}
+  nav{
+    width:250px; flex-shrink:0; background:rgba(5,12,22,0.6);
+    border-right:1px solid var(--line); position:sticky; top:0; height:100vh;
+    overflow-y:auto; padding:28px 18px;
+  }
+  nav .brand{
+    font-family:'Courier New',monospace; color:var(--gold2); font-size:11px;
+    letter-spacing:2px; text-transform:uppercase; margin-bottom:22px;
+    border-bottom:1px solid var(--line); padding-bottom:14px;
+  }
+  nav a{
+    display:block; color:var(--muted); text-decoration:none; font-size:13.5px;
+    padding:7px 0; border-left:2px solid transparent; padding-left:10px; transition:all .2s;
+  }
+  nav a:hover, nav a.active{ color:var(--gold2); border-left:2px solid var(--gold); }
+  main{flex:1; padding:56px 64px; max-width:1020px;}
+  .kicker{
+    font-family:'Courier New',monospace; color:var(--gold); font-size:12px;
+    letter-spacing:2px; text-transform:uppercase; margin-bottom:10px;
+  }
+  h1{ font-size:34px; color:var(--gold2); margin:0 0 10px; letter-spacing:.3px; }
+  .subtitle{ color:var(--muted); font-size:15px; margin-bottom:8px; max-width:720px; }
+  .byline{
+    font-family:'Courier New',monospace; font-size:12.5px; color:var(--muted);
+    margin-bottom:36px; padding-bottom:24px; border-bottom:1px solid var(--line);
+  }
+  .byline a{ color:var(--gold2); text-decoration:none; }
+  h2{
+    font-size:22px; color:var(--gold2); border-bottom:1px solid var(--line);
+    padding-bottom:10px; margin-top:52px; margin-bottom:18px;
+  }
+  h3{ font-size:16.5px; color:var(--gold); margin-top:26px; margin-bottom:10px; font-family:'Courier New',monospace; letter-spacing:.4px; }
+  p{color:#cdd6e2; margin:10px 0;}
+  a{ color: var(--gold2); }
+  .card{ background:rgba(255,255,255,0.02); border:1px solid var(--line); border-radius:8px; padding:22px 26px; margin:16px 0; }
+  .card.gold-edge{border-left:3px solid var(--gold);}
+  .disclaimer{
+    background:rgba(212,175,106,0.06); border:1px dashed var(--line); border-radius:8px;
+    padding:14px 18px; font-size:12.5px; color:var(--muted); margin:18px 0 34px;
+  }
+  table{ width:100%; border-collapse:collapse; margin:14px 0 26px; font-size:13.5px; }
+  th{
+    background:rgba(212,175,106,0.1); color:var(--gold2); text-align:left;
+    padding:10px 12px; font-family:'Courier New',monospace; font-size:11px;
+    letter-spacing:.5px; text-transform:uppercase; border-bottom:1px solid var(--line);
+  }
+  td{ padding:10px 12px; border-bottom:1px solid rgba(255,255,255,0.05); color:#cdd6e2; vertical-align:top; }
+  tr:hover td{background:rgba(212,175,106,0.03);}
+  ul{padding-left:20px;} li{margin:6px 0; color:#cdd6e2;}
+  .flow{ display:flex; align-items:center; gap:8px; flex-wrap:wrap; margin:18px 0; font-family:'Courier New',monospace; font-size:12.5px; }
+  .flow span{ background:rgba(212,175,106,0.1); border:1px solid var(--line); padding:7px 13px; border-radius:5px; color:var(--gold2); }
+  .flow .arrow{color:var(--gold); border:none; background:none; padding:0;}
+  .formula{
+    font-family:'Courier New',monospace; background:rgba(0,0,0,0.25); border:1px solid var(--line);
+    border-radius:6px; padding:14px 18px; color:var(--gold2); font-size:13.5px; margin:12px 0;
+  }
+  .bsc-grid{ display:grid; grid-template-columns:1fr 1fr; gap:16px; margin:18px 0; }
+  .bsc-box{ background:rgba(255,255,255,0.02); border:1px solid var(--line); border-radius:8px; padding:18px 20px; }
+  .bsc-box h4{ margin:0 0 8px; color:var(--gold2); font-size:14px; font-family:'Courier New',monospace; letter-spacing:.5px; text-transform:uppercase; }
+  .badge{
+    display:inline-block; font-family:'Courier New',monospace; font-size:10.5px;
+    color:var(--teal); background:var(--gold2); padding:2px 8px; border-radius:3px; margin-left:6px;
+  }
+  .stack-pill{
+    display:inline-block; background:rgba(212,175,106,0.1); border:1px solid var(--line);
+    color:var(--gold2); font-family:'Courier New',monospace; font-size:12px;
+    padding:6px 12px; border-radius:14px; margin:4px 6px 4px 0;
+  }
+  .footnote{ color:var(--muted); font-size:12.5px; font-family:'Courier New',monospace; margin-top:60px; border-top:1px solid var(--line); padding-top:16px; }
+  .status-live{ color:#8fd19e; font-family:'Courier New',monospace; font-size:12px; }
+  .status-progress{ color:var(--gold2); font-family:'Courier New',monospace; font-size:12px; }
+</style>
+</head>
+<body>
+<div class="layout">
+  <nav>
+    <div class="brand">Case Study Navigation</div>
+    <a href="#summary">Executive Summary</a>
+    <a href="#context">Business Context</a>
+    <a href="#architecture">Data &amp; Framework Architecture</a>
+    <a href="#ppe">PPE Framework</a>
+    <a href="#tdabc">TDABC Methodology</a>
+    <a href="#kpi">KPI Design</a>
+    <a href="#bsc">Balanced Scorecard</a>
+    <a href="#stack">Tech Stack</a>
+    <a href="#governance">Governance</a>
+    <a href="#roadmap">Rollout Timeline</a>
+    <a href="#outcomes">Target Outcomes</a>
+    <a href="#contact">Contact</a>
+  </nav>
+
+  <main>
+    <div class="kicker">Applied Business Analytics Case Study</div>
+    <h1>Profit Per Employee, TDABC, KPI Design &amp; Balanced Scorecard</h1>
+    <p class="subtitle">A cost-allocation and performance-management framework built to turn department-level financial data into board-ready, decision-grade insight — designed and implemented as part of an active Business Analyst / Business Analytics role.</p>
+    <div class="byline">Muhamad Nishad · Business Analyst — Business Growth &amp; Financial Strategy · <a href="mailto:eshnish90@gmail.com">eshnish90@gmail.com</a> · <a href="http://www.linkedin.com/in/nishadmuhamad">LinkedIn</a></div>
+
+    <div class="disclaimer">
+      Note: this page documents a methodology and implementation approach built on the job. Company name, exact figures, and department identifiers are generalized/illustrative to respect employer confidentiality — the framework, formulas, and design logic are accurate representations of the work.
+    </div>
+
+    <section id="summary">
+      <h2>Executive Summary</h2>
+      <p>Most departmental profitability reporting relies on flat, averaged cost allocation — every employee costs "the same," regardless of what they actually do. That approach hides where profit is really being made or lost. This project replaces flat allocation with a <strong>Time-Driven Activity-Based Costing (TDABC)</strong> model feeding a <strong>Profit Per Employee (PPE)</strong> framework, structures the resulting metrics through a disciplined <strong>KPI design methodology</strong>, and ties all of it to strategy through a <strong>Balanced Scorecard</strong> — so every number on a dashboard can be traced back to a decision it's meant to support.</p>
+      <p>The result is a single, connected pipeline: <em>activity data → true cost-to-profit figures → validated KPIs → strategic scorecard → board-ready dashboard</em> — rather than four disconnected spreadsheets built separately each reporting cycle.</p>
+    </section>
+
+    <section id="context">
+      <h2>Business Context</h2>
+      <p>Built against an active Business Analyst charter covering three specific mandates:</p>
+      <ul>
+        <li><strong>PPE ownership</strong> — deriving granular, resource-level profitability across every business unit.</li>
+        <li><strong>KPI Master Sheet development</strong> — designing and maintaining the organization's core performance metrics.</li>
+        <li><strong>Financial analysis &amp; forecasting</strong> — rolling forecasts and department-level cost/variance tracking.</li>
+      </ul>
+      <p>The gap this project addresses: these three mandates existed as separate deliverables. This implementation connects them into one traceable system.</p>
+    </section>
+
+    <section id="architecture">
+      <h2>Data &amp; Framework Architecture</h2>
+      <div class="flow">
+        <span>ERP / Time &amp; Cost Data</span><span class="arrow">→</span>
+        <span>TDABC Cost Allocation</span><span class="arrow">→</span>
+        <span>PPE Model</span><span class="arrow">→</span>
+        <span>KPI Design &amp; Validation</span><span class="arrow">→</span>
+        <span>Balanced Scorecard</span><span class="arrow">→</span>
+        <span>Power BI Dashboard</span>
+      </div>
+      <p>Each stage is a deliberate handoff, not a rebuild: TDABC produces the defensible cost figures that PPE needs; PPE produces the raw metrics that get filtered through KPI design discipline; validated KPIs are what actually populate the Balanced Scorecard's four perspectives; the scorecard is what the dashboard visualizes. Nothing enters the board dashboard that hasn't passed through this chain.</p>
+    </section>
+
+    <section id="ppe">
+      <h2>PPE — Profit Per Employee Framework</h2>
+      <p>PPE reframes department profitability from a top-line, per-department number into a <strong>per-resource</strong> figure — because two departments with identical revenue can have very different profit efficiency depending on staffing intensity and activity cost.</p>
+      <div class="card gold-edge">
+        <strong>Before:</strong> Department profit ÷ department headcount (flat average).<br>
+        <strong>After:</strong> Department profit ÷ resource-level activity cost derived from TDABC — see below.
+      </div>
+      <p>This is the layer that makes the metric defensible in front of a CFO: it answers "why" a department's PPE moved, not just "that" it moved.</p>
+    </section>
+
+    <section id="tdabc">
+      <h2>TDABC — Time-Driven Activity-Based Costing <span class="badge">Methodology + Worked Example</span></h2>
+      <p>TDABC replaces flat manpower cost allocation with a capacity cost rate derived from actual resource supply and practical capacity — the same approach Kaplan &amp; Anderson designed to make ABC costing usable at scale without exploding the model's complexity.</p>
+
+      <h3>Core formula</h3>
+      <div class="formula">
+        Capacity Cost Rate = Cost of Resources Supplied ÷ Practical Capacity of Resources Supplied
+      </div>
+
+      <h3>Illustrative worked example</h3>
+      <table>
+        <tr><th>Input</th><th>Illustrative value</th></tr>
+        <tr><td>Monthly department cost (salaries, overhead, tools)</td><td>SAR 180,000</td></tr>
+        <tr><td>Headcount</td><td>6 employees</td></tr>
+        <tr><td>Practical capacity per employee (accounting for non-productive time)</td><td>120 hours/month (of 160 available)</td></tr>
+        <tr><td>Total practical capacity</td><td>720 hours/month</td></tr>
+        <tr><td><strong>Capacity Cost Rate</strong></td><td><strong>SAR 250/hour</strong> (180,000 ÷ 720)</td></tr>
+      </table>
+      <p>Once the capacity cost rate is established, a <strong>time equation</strong> assigns cost to each activity based on how long it actually takes — so a department handling high-complexity, high-touch work is costed accurately against one that handles high-volume, low-touch work, instead of both being averaged the same.</p>
+      <div class="formula">
+        Activity Cost = Capacity Cost Rate × Time Required for Activity
+      </div>
+      <p>This activity cost is what feeds the PPE model above — replacing the flat average with a figure that reflects what the department actually does.</p>
+    </section>
+
+    <section id="kpi">
+      <h2>KPI Design — KRI / PI / KPI Discipline</h2>
+      <p>Not every metric on a dashboard deserves to be called a KPI. This project applies Parmenter's tiering discipline to separate <strong>lagging results indicators</strong> from <strong>true performance drivers</strong>, so the KPI Master Sheet stops accumulating vanity metrics.</p>
+      <table>
+        <tr><th>Tier</th><th>Definition</th><th>Example (illustrative)</th></tr>
+        <tr><td><strong>KRI</strong> — Key Result Indicator</td><td>Tells you how you did on a critical success factor — a summary, not actionable day-to-day</td><td>Quarterly departmental profit</td></tr>
+        <tr><td><strong>PI</strong> — Performance Indicator</td><td>Tells you what to do — actionable, but not critical enough to report to the board daily</td><td>Weekly billable-hours utilization</td></tr>
+        <tr><td><strong>KPI</strong> — Key Performance Indicator</td><td>Tells you what to do to increase performance dramatically — the vital few, monitored continuously</td><td>Daily capacity cost rate variance vs. budget</td></tr>
+      </table>
+      <p><strong>Validation layer:</strong> before a metric is promoted to KPI status, it's checked against outcomes it claims to predict — a metric only earns "leading indicator" status if it demonstrably correlates with the result it's meant to forecast, not by assumption.</p>
+    </section>
+
+    <section id="bsc">
+      <h2>Balanced Scorecard — Four-Perspective Map</h2>
+      <p>The Balanced Scorecard is what stops the KPI Master Sheet from becoming a list of disconnected operational metrics — every KPI has to earn its place by tying back to one of four strategic perspectives.</p>
+      <div class="bsc-grid">
+        <div class="bsc-box">
+          <h4>Financial</h4>
+          <p>PPE, capacity cost rate variance, rolling forecast accuracy, cost-to-profit ratio by department.</p>
+        </div>
+        <div class="bsc-box">
+          <h4>Customer</h4>
+          <p>Opportunity-to-sales conversion, service-level adherence, client retention by segment.</p>
+        </div>
+        <div class="bsc-box">
+          <h4>Internal Process</h4>
+          <p>TDABC time-equation accuracy, activity cycle time, process-exception rate, department cash-burn trend.</p>
+        </div>
+        <div class="bsc-box">
+          <h4>Learning &amp; Growth</h4>
+          <p>Cross-department dashboard adoption, forecasting-model iteration rate, data-quality score of source systems.</p>
+        </div>
+      </div>
+      <h3>Strategy map logic</h3>
+      <div class="flow">
+        <span>Learning &amp; Growth</span><span class="arrow">→</span>
+        <span>Internal Process</span><span class="arrow">→</span>
+        <span>Customer</span><span class="arrow">→</span>
+        <span>Financial</span>
+      </div>
+      <p>Read left to right: improvements in data quality and dashboard adoption (Learning &amp; Growth) drive process accuracy and cycle-time improvements (Internal Process), which improve conversion and retention (Customer), which ultimately shows up in PPE and cost-to-profit figures (Financial) — the causal chain a strategy map is meant to make explicit.</p>
+    </section>
+
+    <section id="stack">
+      <h2>Tech Stack</h2>
+      <div>
+        <span class="stack-pill">Power BI</span>
+        <span class="stack-pill">PostgreSQL / SQL</span>
+        <span class="stack-pill">Power Query / M</span>
+        <span class="stack-pill">Python (pandas)</span>
+        <span class="stack-pill">ERP integration</span>
+        <span class="stack-pill">DAX time-intelligence</span>
+        <span class="stack-pill">Row-Level Security (RLS)</span>
+        <span class="stack-pill">Star Schema Modeling</span>
+      </div>
+      <p>SQL pulls and shapes department cost/time data; Power Query handles the TDABC cost-rate refresh; the underlying dataset is modeled as a star schema (fact table for activity cost/time, dimension tables for department, cost center, and date) so DAX time-intelligence measures can drive the rolling-forecast and variance views without performance issues. Row-Level Security (RLS) roles enforce the department-centric access boundary at the model level — the same safeguard referenced under Governance below — rather than relying on separate reports per department. Python (pandas) is used for the heavier cost-driver and KPI-validation analysis that doesn't belong inside the report layer.</p>
+      <div class="card gold-edge">
+        <strong>Certification alignment:</strong> the data-prep, star-schema modeling, DAX, and RLS work in this project maps directly onto the four domains of the <strong>Microsoft Certified: Power BI Data Analyst Associate (PL-300)</strong> exam — this case study is the applied, on-the-job proof behind that credential, not just exam theory.
+      </div>
+    </section>
+
+    <section id="governance">
+      <h2>Governance &amp; Documentation</h2>
+      <p>Every metric on the scorecard traces back through a documented chain: source system → TDABC calculation → KPI tier classification → BSC perspective → dashboard visual. This traceability handbook is what makes the framework audit-ready rather than dependent on one person's institutional memory — a deliberate design choice, not an afterthought added for compliance.</p>
+    </section>
+
+    <section id="roadmap">
+      <h2>Rollout Timeline</h2>
+      <table>
+        <tr><th>Phase</th><th>Focus</th><th>Status</th></tr>
+        <tr><td>Foundation</td><td>KPI tiering (KRI/PI/KPI), BSC perspective mapping</td><td><span class="status-progress">In progress</span></td></tr>
+        <tr><td>Cost Model</td><td>TDABC capacity cost rate, time equations, PPE integration</td><td><span class="status-progress">In progress</span></td></tr>
+        <tr><td>Automation</td><td>Power Query / Python automation of TDABC refresh</td><td><span class="status-progress">Planned</span></td></tr>
+        <tr><td>Predictive Layer</td><td>Leading-indicator validation, early-warning KPI flags</td><td><span class="status-progress">Planned</span></td></tr>
+        <tr><td>Governance</td><td>Full traceability handbook, audit-readiness</td><td><span class="status-progress">Ongoing</span></td></tr>
+      </table>
+    </section>
+
+    <section id="outcomes">
+      <h2>Target Outcomes</h2>
+      <ul>
+        <li>Replace flat manpower cost allocation with activity-driven, defensible cost-per-employee figures across all departments.</li>
+        <li>Cut the number of "vanity metrics" on the KPI Master Sheet by validating each metric's predictive relationship to its claimed outcome.</li>
+        <li>Give leadership a single connected dashboard where every number traces to a strategic perspective, not a standalone report.</li>
+        <li>Reduce the manual rebuild effort each reporting cycle by automating the TDABC refresh.</li>
+      </ul>
+    </section>
+
+    <section id="contact">
+      <h2>Contact</h2>
+      <p>Open to Business Analyst / Business Analytics roles where this kind of framework — connecting cost, performance, and strategy into one system — is valued.</p>
+      <p><a href="mailto:eshnish90@gmail.com">eshnish90@gmail.com</a> &nbsp;|&nbsp; <a href="http://www.linkedin.com/in/nishadmuhamad">LinkedIn</a></p>
+    </section>
+
+    <p class="footnote">This case study is part of a broader 12-month Business Analytics development plan — see the companion roadmap for the full learning path and certification track.</p>
+  </main>
+</div>
+</body>
+</html>
